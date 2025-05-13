@@ -2,20 +2,32 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 
+// Interface estendida para o tipo User com a propriedade role opcional
+interface ExtendedUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role?: string;
+}
+
 export default function Home() {
-  const { status, user } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
+  
+  // Tratar o usuário como ExtendedUser
+  const extendedUser = user as ExtendedUser | null;
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [status, router]);
+  }, [isLoading, isAuthenticated, router]);
 
-  if (status === 'loading' || status === 'unauthenticated') {
+  if (isLoading || !isAuthenticated) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
 
@@ -24,11 +36,11 @@ export default function Home() {
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">Bem-vindo ao Revmak</h1>
         
-        {user && (
+        {extendedUser && (
           <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg mb-6">
             <p className="text-blue-800">
-              Olá, <span className="font-semibold">{user.name}</span>! Você está logado como{' '}
-              <span className="font-semibold">{user.role === 'admin' ? 'Administrador' : 'Usuário'}</span>.
+              Olá, <span className="font-semibold">{extendedUser.name}</span>! Você está logado como{' '}
+              <span className="font-semibold">{extendedUser.role === 'admin' ? 'Administrador' : 'Usuário'}</span>.
             </p>
           </div>
         )}

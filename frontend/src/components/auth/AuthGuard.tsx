@@ -2,7 +2,16 @@
 
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
+
+// Interface estendida para o tipo User com a propriedade role opcional
+interface ExtendedUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role?: string;
+}
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -15,28 +24,27 @@ export default function AuthGuard({
   requireAuth = true,
   allowedRoles = [],
 }: AuthGuardProps) {
-  const { user, status } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  
+  // Tratar o usuário como ExtendedUser
+  const extendedUser = user as ExtendedUser | null;
 
   useEffect(() => {
-    // Se ainda estiver carregando, não faça nada
-    if (status === 'loading') return;
+    if (isLoading) return;
 
-    // Se requer autenticação e o usuário não está autenticado
-    if (requireAuth && status !== 'authenticated') {
-      // Redirecionar para login, salvando a página atual para redirecionamento após login
+    if (requireAuth && !isAuthenticated) {
       router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
 
-    // Se o usuário está autenticado, mas não tem permissão para acessar a página
     if (
       requireAuth &&
-      status === 'authenticated' &&
+      isAuthenticated &&
       allowedRoles.length > 0 &&
-      user?.role &&
-      !allowedRoles.includes(user.role)
+      extendedUser &&
+      !allowedRoles.includes(extendedUser.role || '')
     ) {
       // Redirecionar para página de acesso negado
       router.push('/unauthorized');
@@ -44,24 +52,24 @@ export default function AuthGuard({
     }
 
     // Se não requer autenticação, mas o usuário está autenticado (ex: página de login)
-    if (!requireAuth && status === 'authenticated') {
+    if (!requireAuth && isAuthenticated) {
       router.push('/');
       return;
     }
-  }, [status, requireAuth, allowedRoles, router, pathname, user]);
+  }, [isLoading, isAuthenticated, requireAuth, allowedRoles, router, pathname, extendedUser]);
 
   // Mostrar nada enquanto verifica autenticação
-  if (status === 'loading') {
+  if (isLoading) {
     return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
   }
 
   // Se requer autenticação e o usuário não está autenticado, não renderize nada
-  if (requireAuth && status !== 'authenticated') {
+  if (requireAuth && !isAuthenticated) {
     return null;
   }
 
   // Se não requer autenticação e o usuário está autenticado, não renderize nada
-  if (!requireAuth && status === 'authenticated') {
+  if (!requireAuth && isAuthenticated) {
     return null;
   }
 

@@ -2,8 +2,17 @@
 
 import React from 'react';
 import AuthGuard from '../auth/AuthGuard';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+
+// Interface estendida para o tipo User com a propriedade role opcional
+interface ExtendedUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  role?: string;
+}
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -14,10 +23,12 @@ export default function ProtectedLayout({
   children,
   allowedRoles = [],
 }: ProtectedLayoutProps) {
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
+  // Tratar o usuário como ExtendedUser
+  const extendedUser = user as ExtendedUser | null;
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
   };
 
   return (
@@ -28,7 +39,7 @@ export default function ProtectedLayout({
             <Link href="/" className="text-xl font-bold">Revmak</Link>
             <nav className="flex items-center space-x-4">
               <Link href="/" className="hover:text-blue-200">Início</Link>
-              {user?.role === 'admin' && (
+              {extendedUser?.role === 'admin' && (
                 <Link href="/admin" className="hover:text-blue-200">Admin</Link>
               )}
             </nav>
@@ -38,7 +49,7 @@ export default function ProtectedLayout({
                   <Link href="/profile" className="hover:text-blue-200">
                     Perfil
                   </Link>
-                  <span>Olá, {user.name || user.email}</span>
+                  <span>Olá, {extendedUser?.name || extendedUser?.email}</span>
                   <button
                     onClick={handleSignOut}
                     className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import ProtectedLayout from '@/components/layouts/ProtectedLayout';
 import * as userService from '@/services/user.service';
 
 export default function ProfilePage() {
-  const { user, setError } = useAuth();
+  const { user, connectionError, updateUserData } = useAuth();
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [currentPassword, setCurrentPassword] = useState('');
@@ -29,13 +29,14 @@ export default function ProfilePage() {
     setValidationError('');
 
     try {
-      await userService.updateCurrentUser({
+      const updatedUser = await userService.updateCurrentUser({
         name,
         email,
       });
+      updateUserData(updatedUser);
       setUpdateSuccess(true);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao atualizar perfil');
+      setValidationError(err.response?.data?.message || 'Erro ao atualizar perfil');
     } finally {
       setIsUpdating(false);
     }
@@ -69,7 +70,7 @@ export default function ProfilePage() {
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao atualizar senha');
+      setValidationError(err.response?.data?.message || 'Erro ao atualizar senha');
     } finally {
       setIsChangingPassword(false);
     }

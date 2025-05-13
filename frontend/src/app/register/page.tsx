@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -14,21 +14,14 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
-  const { register, error, setError, status } = useAuth();
+  const { register, isAuthenticated, connectionError } = useAuth();
 
   // Redirecionar se já estiver autenticado
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (isAuthenticated) {
       router.push('/');
     }
-  }, [status, router]);
-
-  // Limpar mensagens de erro ao desmontar o componente
-  useEffect(() => {
-    return () => {
-      setError(null);
-    };
-  }, [setError]);
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +51,7 @@ export default function RegisterPage() {
     }
   };
 
-  const displayError = validationError || error;
+  const displayError = validationError || connectionError;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

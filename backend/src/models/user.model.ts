@@ -2,7 +2,6 @@ import { Model, DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import sequelize from '../config/database';
 
-// Interface para o modelo de usuário
 export interface UserAttributes {
   id?: number;
   name: string;
@@ -14,12 +13,10 @@ export interface UserAttributes {
   updatedAt?: Date;
 }
 
-// Interface para o modelo de usuário com métodos
 export interface UserInstance extends Model<UserAttributes, UserAttributes>, UserAttributes {
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
-// Definição do modelo
 const User = sequelize.define<UserInstance>(
   'User',
   {
@@ -87,12 +84,11 @@ const User = sequelize.define<UserInstance>(
           user.password = await bcrypt.hash(user.password, salt);
         }
       },
-    },
+    }
   }
 );
 
-// Método para comparar senhas
-User.prototype.comparePassword = async function (candidatePassword: string): Promise<boolean> {
+(User as any).prototype.comparePassword = async function(candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
