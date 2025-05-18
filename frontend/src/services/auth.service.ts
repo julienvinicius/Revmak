@@ -22,6 +22,20 @@ export interface UserData {
   email: string;
   role: string;
   isActive: boolean;
+  cpf?: string;
+  cnpj?: string;
+  phone?: string;
+  birthDate?: string;
+  address?: string;
+  addressNumber?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  profilePicture?: string;
+  companyName?: string;
+  isSeller?: boolean;
   createdAt: string;
   updatedAt: string;
 }

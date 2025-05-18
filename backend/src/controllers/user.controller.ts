@@ -30,12 +30,36 @@ export const getUserById = async (
   next: NextFunction
 ) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    console.log('Backend - getUserById: Request received', {
+      params: req.params,
+      path: req.path,
+      originalUrl: req.originalUrl,
+      userInRequest: !!req.user
+    });
+
+    let userId;
+    
+    // Se for a rota /me, usar o ID do usuário autenticado
+    if (req.path === '/me' || req.originalUrl.endsWith('/me')) {
+      console.log('Backend - getUserById: Using authenticated user ID from request');
+      userId = req.user.id;
+    } else {
+      // Caso contrário, usar o ID do parâmetro da rota
+      console.log('Backend - getUserById: Using ID from params');
+      userId = req.params.id;
+    }
+
+    console.log('Backend - getUserById: Finding user with ID', userId);
+    
+    const user = await User.findByPk(userId);
 
     if (!user) {
+      console.log('Backend - getUserById: User not found');
       return next(new AppError('Usuário não encontrado', 404));
     }
 
+    console.log('Backend - getUserById: User found, sending response');
+    
     res.status(200).json({
       status: 'success',
       data: {
@@ -43,6 +67,10 @@ export const getUserById = async (
       },
     });
   } catch (error) {
+    console.error('Backend - getUserById: Error', {
+      message: (error as Error).message,
+      stack: (error as Error).stack
+    });
     next(error);
   }
 };

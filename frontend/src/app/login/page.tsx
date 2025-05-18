@@ -31,11 +31,14 @@ export default function LoginPage() {
     setIsLoading(true);
     
     try {
-      await login(email, password);
-      router.push('/'); // Redirecionar para a página inicial após login
+      const response = await login(email, password);
+      console.log('Login bem sucedido, redirecionando...', response);
+      
+      // Usar router.push em vez de window.location para evitar refresh completo
+      router.push('/landingpage');
     } catch (err: any) {
+      console.error('Erro ao fazer login:', err);
       // O erro já foi tratado no AuthContext e definido em connectionError
-      // Apenas definimos isLoading como false aqui
     } finally {
       setIsLoading(false);
     }
@@ -233,15 +236,11 @@ export default function LoginPage() {
             <div className="mt-10 text-center">
               <p className="text-sm text-amber-100/50">
                 Não tem uma conta?{' '}
-                <Link href="/register" className="text-amber-500/80 hover:text-amber-400 font-medium transition-colors">
+                <Link href="/register" className="text-amber-500 hover:text-amber-400 transition-colors">
                   Cadastre-se
                 </Link>
               </p>
             </div>
-          </div>
-          
-          <div className="mt-8 text-center text-xs text-amber-100/30">
-            &copy; {new Date().getFullYear()} RevMak. Todos os direitos reservados.
           </div>
         </div>
       </div>

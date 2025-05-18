@@ -16,7 +16,6 @@ export default function RegisterPage() {
   const router = useRouter();
   const { register, isAuthenticated, connectionError } = useAuth();
 
-  // Redirecionar se já estiver autenticado
   useEffect(() => {
     if (isAuthenticated) {
       router.push('/');
@@ -28,7 +27,6 @@ export default function RegisterPage() {
     setIsLoading(true);
     setValidationError('');
     
-    // Validação básica
     if (password !== confirmPassword) {
       setValidationError('As senhas não coincidem.');
       setIsLoading(false);
@@ -43,9 +41,7 @@ export default function RegisterPage() {
 
     try {
       await register(name, email, password);
-      // O redirecionamento é feito no contexto de autenticação
     } catch (err) {
-      // Erros são tratados no contexto de autenticação
     } finally {
       setIsLoading(false);
     }

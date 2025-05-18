@@ -4,6 +4,27 @@ import { UserData } from './auth.service';
 export interface UpdateUserData {
   name?: string;
   email?: string;
+  cpf?: string;
+  cnpj?: string;
+  phone?: string;
+  birthDate?: string;
+  address?: string;
+  addressNumber?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  profilePicture?: string;
+  companyName?: string;
+  isSeller?: boolean;
+  currentPassword?: string;
+  password?: string;
+}
+
+export interface PasswordUpdateData {
+  currentPassword: string;
+  newPassword: string;
 }
 
 export interface AdminUpdateUserData extends UpdateUserData {
@@ -18,6 +39,11 @@ export const updateCurrentUser = async (data: UpdateUserData): Promise<UserData>
     data
   );
   return response.data.data.user;
+};
+
+// Função para atualizar senha do usuário atual
+export const updatePassword = async (data: PasswordUpdateData): Promise<void> => {
+  await api.patch('/users/update-password', data);
 };
 
 // Função para desativar a conta do usuário atual

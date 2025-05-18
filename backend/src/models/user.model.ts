@@ -9,6 +9,21 @@ export interface UserAttributes {
   password: string;
   role: 'user' | 'admin';
   isActive: boolean;
+  // Novos campos
+  cpf?: string;
+  cnpj?: string;
+  phone?: string;
+  birthDate?: Date;
+  address?: string;
+  addressNumber?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  profilePicture?: string;
+  companyName?: string;
+  isSeller?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -65,6 +80,79 @@ const User = sequelize.define<UserInstance>(
       type: DataTypes.BOOLEAN,
       defaultValue: true,
       field: 'is_active',
+    },
+    // Novos campos
+    cpf: {
+      type: DataTypes.STRING(14),
+      allowNull: true,
+      unique: true,
+      field: 'cpf',
+    },
+    cnpj: {
+      type: DataTypes.STRING(18),
+      allowNull: true,
+      unique: true,
+      field: 'cnpj',
+    },
+    phone: {
+      type: DataTypes.STRING(15),
+      allowNull: true,
+      field: 'phone',
+    },
+    birthDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+      field: 'birth_date',
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'address',
+    },
+    addressNumber: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      field: 'address_number',
+    },
+    complement: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'complement',
+    },
+    neighborhood: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'neighborhood',
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'city',
+    },
+    state: {
+      type: DataTypes.STRING(2),
+      allowNull: true,
+      field: 'state',
+    },
+    zipCode: {
+      type: DataTypes.STRING(9),
+      allowNull: true,
+      field: 'zip_code',
+    },
+    profilePicture: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'profile_picture',
+    },
+    companyName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      field: 'company_name',
+    },
+    isSeller: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'is_seller',
     },
   },
   {

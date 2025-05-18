@@ -2,48 +2,71 @@ import jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import { IUser } from '../interfaces/user.interface';
 
-// Função para criar um token JWT
 export const generateToken = (id: number): string => {
-  return jwt.sign(
-    { id },
-    process.env.JWT_SECRET || 'seu-segredo-super-secreto',
-    {
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    }
-  );
+  console.log('JWT Util - Generating token for userId:', id);
+  try {
+    const secret = 'revmak-jwt-secret-key-2023';
+    const expiresIn = '3h';
+    
+    console.log('JWT Util - Token configuration:', {
+      expiresIn,
+      usingFixedSecret: true
+    });
+    
+    const token = jwt.sign({ id: id }, secret, { expiresIn });
+    
+    console.log('JWT Util - Token generated successfully');
+    return token;
+  } catch (error) {
+    console.error('JWT Util - Error generating token:', (error as Error).message);
+    throw error;
+  }
 };
 
-// Função para criar e enviar um token JWT como cookie
 export const createSendToken = (
   user: IUser,
   statusCode: number,
   res: Response
 ) => {
-  const token = generateToken(user.id);
+  console.log('JWT Util - Creating and sending token for user:', {
+    id: user.id,
+    email: user.email,
+    statusCode
+  });
+  
+  const token = generateToken(Number(user.id));
 
-  // Configurar cookie
+  const cookieExpiresIn = 3;
   const cookieOptions: any = {
     expires: new Date(
-      Date.now() +
-        parseInt(process.env.JWT_COOKIE_EXPIRES_IN || '7') * 24 * 60 * 60 * 1000
+      Date.now() + cookieExpiresIn * 60 * 60 * 1000
     ),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
   };
 
-  // Enviar cookie
+  console.log('JWT Util - Setting cookie with options:', {
+    cookieExpiresIn: `${cookieExpiresIn} hours`,
+    httpOnly: cookieOptions.httpOnly,
+    secure: cookieOptions.secure,
+    environment: process.env.NODE_ENV || 'development'
+  });
+
   res.cookie('jwt', token, cookieOptions);
 
-  // Remover a senha da saída
-  const userObj = user.toJSON();
-  delete userObj.password;
+  const userObject = user.toJSON();
+  const { password, ...userWithoutPassword } = userObject;
 
-  // Enviar resposta
+  console.log('JWT Util - Sending response with token', {
+    statusCode,
+    tokenProvided: !!token
+  });
+  
   res.status(statusCode).json({
     status: 'success',
     token,
     data: {
-      user: userObj,
+      user: userWithoutPassword,
     },
   });
 }; 
